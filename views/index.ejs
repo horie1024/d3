@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src = "//d3js.org/d3.v3.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1><%= title %></h1>
+    <p id = 'disp'></p>
+    <p id = 'svg'></p>
+    <script type="text/javascript">
+        (function() {
+
+            var dataset = [],
+            dataLength = 255,
+            maxOfData = 40;
+
+            for (var i = 0; i < dataLength; i++) {
+                var newNumber = Math.random() * maxOfData;
+                newNumber = ~~newNumber;
+                dataset.push(newNumber);
+            };
+
+            w = dataLength * 40,
+            h = maxOfData * 10,
+            barPadding = 1; 
+        
+            //Create SVG element
+            var svg = d3.select("#svg")
+            .append("svg")
+            .attr("width", w)
+            .attr("height", h);
+
+            svg.selectAll("rect")
+            .data(dataset)
+            .enter()
+            .append("rect")
+            .attr("x", function(d,i) {
+                return i * (w/dataset.length);
+            })
+            .attr("y", function(d) {
+                return h - (d * 10);
+            })
+            .attr("width", w/dataset.length - barPadding)
+            .attr("height", function(d) {
+                return d * 10;
+            })
+            .attr("fill", "teal");
+
+            svg.selectAll("text")
+                .data(dataset)
+                .enter()
+                .append("text")
+                .text(function(d) {
+                    return d;
+                })
+                .attr("x", function(d, i) {
+                    return i * (w / dataset.length) + 10;  // +5
+                })
+                .attr("y", function(d) {
+                    return h - (d * 10) + 15;              // +15
+                });
+
+                $('#disp').text('データの個数:' + dataLength);
+
+        }());
+    </script>
+</body>
+</html>
