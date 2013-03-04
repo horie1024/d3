@@ -10,6 +10,8 @@
     <h1><%= title %></h1>
     <p id = 'disp'></p>
     <p id = 'svg'></p>
+    <p id = 'sorted'></p>
+    <p id = 'test'></p>
     <script type="text/javascript">
         (function() {
 
@@ -63,7 +65,36 @@
                     return h - (d * 10) + 15;              // +15
                 });
 
-                $('#disp').text('データの個数:' + dataLength);
+            $('#disp').text('データの個数:' + dataLength);
+
+            var sorted = d3.select('#sorted')
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+            dataset = dataset.sort(function(a, b) {
+                return d3.ascending(b, a);
+            });
+
+            sorted.selectAll('rect')
+                .data(dataset)
+                .enter()
+                .append("rect")
+                .attr("x", function(d,i) {
+                    return i * (w/dataset.length);
+                })
+                .attr("y", function(d) {
+                    return h - (d * 10);
+                })
+                .attr("width", w/dataset.length - barPadding)
+                .attr("height", function(d) {
+                    return d * 10;
+                })
+                .attr("fill", 'orange')
+                .on("click", function(d) {
+                    console.log(d);
+                    $('#test').text('Clicked! data = ' + d);
+                });
 
         }());
     </script>
