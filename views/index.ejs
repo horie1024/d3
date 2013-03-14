@@ -10,93 +10,50 @@
     <h1><%= title %></h1>
     <p id = 'disp'></p>
     <p id = 'svg'></p>
-    <p id = 'sorted'></p>
-    <p id = 'test'></p>
+    <p id = 'cityname'></p>
+    <p id = 'citycode'></p>
     <script type="text/javascript">
-        (function() {
+        (function(){
 
-            var dataset = [],
-            dataLength = 255,
-            maxOfData = 40;
+            var width = 960,
+            height = 560;
 
-            for (var i = 0; i < dataLength; i++) {
-                var newNumber = Math.random() * maxOfData;
-                newNumber = ~~newNumber;
-                dataset.push(newNumber);
-            };
+            var g = d3.select('#svg').append('svg')
+              .attr('width', width)
+              .attr('height', height)
+              .append('g');
+              d3.json('/geojson/tokyo23.json', function(err, collection) {
+                console.log(collection);
 
-            w = dataLength * 40,
-            h = maxOfData * 10,
-            barPadding = 1; 
-        
-            //Create SVG element
-            var svg = d3.select("#svg")
-            .append("svg")
-            .attr("width", w)
-            .attr("height", h);
+              var projection = d3.geo.mercator()
+                   .scale(450000)
+                   .center(d3.geo.centroid(collection))
+                   .translate([width / 2, height / 2]);
+                var path = d3.geo.path().projection(projection);
 
-            svg.selectAll("rect")
-            .data(dataset)
-            .enter()
-            .append("rect")
-            .attr("x", function(d,i) {
-                return i * (w/dataset.length);
-            })
-            .attr("y", function(d) {
-                return h - (d * 10);
-            })
-            .attr("width", w/dataset.length - barPadding)
-            .attr("height", function(d) {
-                return d * 10;
-            })
-            .attr("fill", "teal");
-
-            svg.selectAll("text")
-                .data(dataset)
+                g.selectAll('path')
+                .data(collection.features)
                 .enter()
-                .append("text")
-                .text(function(d) {
-                    return d;
+                .append('path')
+                .attr('d', path)
+                .attr('class', function(d) {
+                    return 'area area' + (d.properties.N03_004 ? 'City' : '23');
                 })
-                .attr("x", function(d, i) {
-                    return i * (w / dataset.length) + 10;  // +5
+                .attr('data-cityname', function(d) {
+                    return d.properties.N03_003 ? d.properties.N03_003 : '' +
+                    d.properties.N03_004 ? d.properties.N03_004 : '';
                 })
-                .attr("y", function(d) {
-                    return h - (d * 10) + 15;              // +15
-                });
-
-            $('#disp').text('データの個数:' + dataLength);
-
-            var sorted = d3.select('#sorted')
-                .append("svg")
-                .attr("width", w)
-                .attr("height", h);
-
-            dataset = dataset.sort(function(a, b) {
-                return d3.ascending(b, a);
+                .attr('data-citycode', function(d) {
+                  return d.properties.N03_007;
+              })
+                .on('click', function() {
+                    console.log('test');
+                  var self = d3.select(this);
+                  d3.select('#cityname').text(self.attr('data-cityname'));
+                  d3.select('#citycode').text(self.attr('data-citycode'));
+              });
             });
-
-            sorted.selectAll('rect')
-                .data(dataset)
-                .enter()
-                .append("rect")
-                .attr("x", function(d,i) {
-                    return i * (w/dataset.length);
-                })
-                .attr("y", function(d) {
-                    return h - (d * 10);
-                })
-                .attr("width", w/dataset.length - barPadding)
-                .attr("height", function(d) {
-                    return d * 10;
-                })
-                .attr("fill", 'orange')
-                .on("click", function(d) {
-                    console.log(d);
-                    $('#test').text('Clicked! data = ' + d);
-                });
-
-        }());
+        })();
     </script>
 </body>
 </html>
